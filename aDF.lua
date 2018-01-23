@@ -10,6 +10,7 @@ aDF:RegisterEvent("UNIT_AURA")
 aDF:RegisterEvent("PLAYER_TARGET_CHANGED")
 
 -- tables 
+guiOptionsSize = 0
 aDF_frames = {} -- we will put all debuff frames in here
 gui_Options = gui_Options or {} -- checklist options
 gui_Optionsxy = gui_Optionsxy or 1
@@ -18,26 +19,27 @@ gui_chantbl = {
    "Yell",
    "Party",
    "Raid",
-   "Raid_Warning"
+   "Raid_Warning",
+   "Guild"
  }
 
 -- translation table for debuff check on target
 
 aDFSpells = {
-	["Sunder Armor"] = "Sunder Armor",
-	["Armor Shatter"] = "Armor Shatter",
-	["Faerie Fire"] = "Faerie Fire",
-	["Crystal Yield"] = "Crystal Yield",
-	["Nightfall"] = "Spell Vulnerability",
-	["Scorch"] = "Fire Vulnerability",
-	["Ignite"] = "Ignite",
-	["Curse of Recklessness"] = "Curse of Recklessness",
-	["Curse of the Elements"] = "Curse of the Elements",
-	["Curse of Shadows"] = "Curse of Shadow",
-	["Shadow Bolt"] = "Shadow Vulnerability",
-	["Shadow Weaving"] = "Shadow Weaving",
-	["Mage T3 6/9 Bonus"] = "Elemental Vulnerability",
-	["Vampiric Embrace"] = "Vampiric Embrace", 
+	["Sunder Armor"] = "Interface\\Icons\\Ability_Warrior_Sunder",
+	["Armor Shatter"] = "Interface\\Icons\\INV_Axe_12",
+	["Faerie Fire"] = "Interface\\Icons\\Spell_Nature_FaerieFire",
+	["Crystal Yield"] = "Interface\\Icons\\INV_Misc_Gem_Amethyst_01",
+	["Elemental Vulnerability"] = "Interface\\Icons\\Spell_Holy_Dizzy",
+	["Nightfall"] = "Interface\\Icons\\Spell_Holy_ElunesGrace",
+	["Scorch"] = "Interface\\Icons\\Spell_Fire_SoulBurn",
+	["Ignite"] = "Interface\\Icons\\Spell_Fire_Incinerate",
+	["Curse of Recklessness"] = "Interface\\Icons\\Spell_Shadow_UnholyStrength",
+	["Curse of the Elements"] = "Interface\\Icons\\Spell_Shadow_ChillTouch",
+	["Curse of Shadows"] = "Interface\\Icons\\Spell_Shadow_CurseOfAchimonde",
+	["Shadow Bolt"] = "Interface\\Icons\\Spell_Shadow_ShadowBolt",
+	["Shadow Weaving"] = "Interface\\Icons\\Spell_Shadow_BlackPlague",
+	["Vampiric Embrace"] = "Interface\\Icons\\Spell_Shadow_UnsummonBuilding",
 }
 
 -- table with names and textures 
@@ -59,14 +61,36 @@ aDFDebuffs = {
 	["Vampiric Embrace"] = "Interface\\Icons\\Spell_Shadow_UnsummonBuilding",
 }
 
+-- table with cooldowns
+
+aDFCooldowns = {
+	["Sunder Armor"] = 30,
+	["Armor Shatter"] = 45,
+	["Faerie Fire"] = 40,
+	["Crystal Yield"] = 120,
+	["Nightfall"] = 5,
+	["Scorch"] = 30,
+	["Ignite"] = 4,
+	["Curse of Recklessness"] = 120,
+	["Curse of the Elements"] = 120,
+	["Curse of Shadows"] = 120,
+	["Shadow Bolt"] = 12,
+	["Shadow Weaving"] = 15,
+	["Mage T3 6/9 Bonus"] = 30,
+	["Vampiric Embrace"] = 60, 
+}
+
+
 function aDF_Default()
 	if guiOptions == nil then
+		guiOptions = {}
 		for k,v in pairs(aDFDebuffs) do
 			if guiOptions[k] == nil then
 				guiOptions[k] = 1
 			end
 		end
 	end
+	aDF:CheckSize()
 end
 
 -- the main frame
@@ -74,7 +98,9 @@ end
 function aDF:Init()
 	aDF.Drag = { }
 	function aDF.Drag:StartMoving()
-		this:StartMoving()
+		if ( IsShiftKeyDown() ) then
+			this:StartMoving()
+		end
 	end
 	
 	function aDF.Drag:StopMovingOrSizing()
@@ -99,7 +125,7 @@ function aDF:Init()
 	}
 	
 	self:SetFrameStrata("BACKGROUND")
-	self:SetWidth((24+gui_Optionsxy)*7) -- Set these to whatever height/width is needed 
+	self:SetWidth((24+gui_Optionsxy)*guiOptionsSize) -- Set these to whatever height/width is needed 
 	self:SetHeight(24+gui_Optionsxy) -- for your Texture
 	self:SetPoint("CENTER",aDF_x,aDF_y)
 	self:SetMovable(1)
@@ -161,9 +187,9 @@ function aDF:Init()
 		frame:SetScript("OnLeave", function() GameTooltip:Hide() end)
 		frame:SetScript("OnMouseDown", function()
 			if (arg1 == "RightButton") then
-				tdb=this:GetName()
+				local tdb=this:GetName()
 				if aDF_target ~= nil then
-					if UnitAffectingCombat(aDF_target) and UnitCanAttack("player", aDF_target) and guiOptions[tdb] ~= nil then
+					if UnitCanAttack("player", aDF_target) and guiOptions[tdb] ~= nil then
 						if not aDF:GetDebuff(aDF_target,aDFSpells[tdb]) then
 							SendChatMessage("["..tdb.."] is not active on "..UnitName(aDF_target), gui_chan)
 						else
@@ -199,8 +225,8 @@ function aDF.Create_frame(name)
 	frame.icon:SetPoint('BOTTOMRIGHT', -1, 1)
 	frame.nr = frame:CreateFontString(nil, "OVERLAY")
 	frame.nr:SetPoint("CENTER", frame, "CENTER", 0, 0)
-	frame.nr:SetFont("Fonts\\FRIZQT__.TTF", 16+gui_Optionsxy)
-	frame.nr:SetTextColor(255, 255, 0, 1)
+	frame.nr:SetFont("Fonts\\FRIZQT__.TTF", 16+gui_Optionsxy, "OUTLINE")
+	frame.nr:SetTextColor(255, 255, 255, 1)
 	frame.nr:SetShadowOffset(2,-2)
 	frame.nr:SetText("1")
 	--DEFAULT_CHAT_FRAME:AddMessage("----- Adding new frame")
@@ -237,6 +263,8 @@ function aDF:Update()
 			aDF_frames[i]["nr"]:SetText("")
 		end
 	end
+	aDF:CheckSize()
+	aDF:SetWidth((24+gui_Optionsxy)*guiOptionsSize)
 end
 
 function aDF:UpdateCheck()
@@ -245,6 +273,18 @@ function aDF:UpdateCheck()
 		aDF:Update()
 	end
 end
+
+function aDF:CheckSize()
+	guiOptionsSize = 0
+	for k,v in pairs(guiOptions) do
+		if guiOptionsSize < 7 then
+			guiOptionsSize = guiOptionsSize + 1
+		else 
+			guiOptionsSize = 7
+		end
+	end
+end
+
 
 -- Sort function to show/hide frames aswell as positioning them correctly
 
@@ -302,7 +342,7 @@ function aDF.Options:Gui()
 	
 	self:SetFrameStrata("BACKGROUND")
 	self:SetWidth(400) -- Set these to whatever height/width is needed 
-	self:SetHeight(450) -- for your Texture
+	self:SetHeight(400) -- for your Texture
 	self:SetPoint("CENTER",0,0)
 	self:SetMovable(1)
 	self:EnableMouse(1)
@@ -356,7 +396,7 @@ function aDF.Options:Gui()
 			frame:SetHeight(24+gui_Optionsxy)
 			frame.nr:SetFont("Fonts\\FRIZQT__.TTF", 16+gui_Optionsxy)
 		end
-		aDF:SetWidth((24+gui_Optionsxy)*7)
+		aDF:SetWidth((24+gui_Optionsxy)*guiOptionsSize)
 		aDF:SetHeight(24+gui_Optionsxy)
 		aDF.armor:SetFont("Fonts\\FRIZQT__.TTF", 24+gui_Optionsxy)
 		aDF.res:SetFont("Fonts\\FRIZQT__.TTF", 14+gui_Optionsxy)
@@ -369,7 +409,7 @@ function aDF.Options:Gui()
 	
 	--Sunder
 	self.SunderCheckbox = CreateFrame("CheckButton", nil, self, "UICheckButtonTemplate")
-	self.SunderCheckbox:SetPoint("TOPLEFT",130,-80)
+	self.SunderCheckbox:SetPoint("TOPLEFT",90,-100)
 	self.SunderCheckbox:SetFrameStrata("LOW")
 	self.SunderCheckbox:SetScript("OnClick", function () 
 		if self.SunderCheckbox:GetChecked() == nil then 
@@ -396,7 +436,7 @@ function aDF.Options:Gui()
 	
 	--Armor Shatter
 	self.AnniCheckbox = CreateFrame("CheckButton", nil, self, "UICheckButtonTemplate")
-	self.AnniCheckbox:SetPoint("TOPLEFT",130,-120)
+	self.AnniCheckbox:SetPoint("TOPLEFT",90,-140)
 	self.AnniCheckbox:SetFrameStrata("LOW")
 	self.AnniCheckbox:SetScript("OnClick", function () 
 		if self.AnniCheckbox:GetChecked() == nil then 
@@ -423,7 +463,7 @@ function aDF.Options:Gui()
 	
 	--Faerie Fire
 	self.FFCheckbox = CreateFrame("CheckButton", nil, self, "UICheckButtonTemplate")
-	self.FFCheckbox:SetPoint("TOPLEFT",130,-160)
+	self.FFCheckbox:SetPoint("TOPLEFT",90,-180)
 	self.FFCheckbox:SetFrameStrata("LOW")
 	self.FFCheckbox:SetScript("OnClick", function () 
 		if self.FFCheckbox:GetChecked() == nil then 
@@ -450,7 +490,7 @@ function aDF.Options:Gui()
 	
 	--Crystal Yield
 	self.CrystalCheckbox = CreateFrame("CheckButton", nil, self, "UICheckButtonTemplate")
-	self.CrystalCheckbox:SetPoint("TOPLEFT",130,-200)
+	self.CrystalCheckbox:SetPoint("TOPLEFT",90,-220)
 	self.CrystalCheckbox:SetFrameStrata("LOW")
 	self.CrystalCheckbox:SetScript("OnClick", function () 
 		if self.CrystalCheckbox:GetChecked() == nil then 
@@ -477,7 +517,7 @@ function aDF.Options:Gui()
 
 	--Nightfall
 	self.NfallCheckbox = CreateFrame("CheckButton", nil, self, "UICheckButtonTemplate")
-	self.NfallCheckbox:SetPoint("TOPLEFT",130,-240)
+	self.NfallCheckbox:SetPoint("TOPLEFT",90,-260)
 	self.NfallCheckbox:SetFrameStrata("LOW")
 	self.NfallCheckbox:SetScript("OnClick", function () 
 		if self.NfallCheckbox:GetChecked() == nil then 
@@ -504,7 +544,7 @@ function aDF.Options:Gui()
 
 	--Scorch
 	self.ScorchCheckbox = CreateFrame("CheckButton", nil, self, "UICheckButtonTemplate")
-	self.ScorchCheckbox:SetPoint("TOPLEFT",130,-280)
+	self.ScorchCheckbox:SetPoint("TOPRIGHT",-170,-100)
 	self.ScorchCheckbox:SetFrameStrata("LOW")
 	self.ScorchCheckbox:SetScript("OnClick", function () 
 		if self.ScorchCheckbox:GetChecked() == nil then 
@@ -531,7 +571,7 @@ function aDF.Options:Gui()
 
 	--Curse of Recklessness
 	self.CorCheckbox = CreateFrame("CheckButton", nil, self, "UICheckButtonTemplate")
-	self.CorCheckbox:SetPoint("TOPRIGHT",-100,-80)
+	self.CorCheckbox:SetPoint("TOPRIGHT",-170,-140)
 	self.CorCheckbox:SetFrameStrata("LOW")
 	self.CorCheckbox:SetScript("OnClick", function () 
 		if self.CorCheckbox:GetChecked() == nil then 
@@ -558,7 +598,7 @@ function aDF.Options:Gui()
 
 	--Curse of the Elements
 	self.CoeCheckbox = CreateFrame("CheckButton", nil, self, "UICheckButtonTemplate")
-	self.CoeCheckbox:SetPoint("TOPRIGHT",-100,-120)
+	self.CoeCheckbox:SetPoint("TOPRIGHT",-170,-180)
 	self.CoeCheckbox:SetFrameStrata("LOW")
 	self.CoeCheckbox:SetScript("OnClick", function () 
 		if self.CoeCheckbox:GetChecked() == nil then 
@@ -585,7 +625,7 @@ function aDF.Options:Gui()
 
 	--Curse of Shadows
 	self.CosCheckbox = CreateFrame("CheckButton", nil, self, "UICheckButtonTemplate")
-	self.CosCheckbox:SetPoint("TOPRIGHT",-100,-160)
+	self.CosCheckbox:SetPoint("TOPRIGHT",-170,-220)
 	self.CosCheckbox:SetFrameStrata("LOW")
 	self.CosCheckbox:SetScript("OnClick", function () 
 		if self.CosCheckbox:GetChecked() == nil then 
@@ -612,7 +652,7 @@ function aDF.Options:Gui()
 
 	--Shadow Bolt
 	self.SboltCheckbox = CreateFrame("CheckButton", nil, self, "UICheckButtonTemplate")
-	self.SboltCheckbox:SetPoint("TOPRIGHT",-100,-200)
+	self.SboltCheckbox:SetPoint("TOPRIGHT",-170,-260)
 	self.SboltCheckbox:SetFrameStrata("LOW")
 	self.SboltCheckbox:SetScript("OnClick", function () 
 		if self.SboltCheckbox:GetChecked() == nil then 
@@ -639,7 +679,7 @@ function aDF.Options:Gui()
 
 	--Shadow Weaving
 	self.SweavCheckbox = CreateFrame("CheckButton", nil, self, "UICheckButtonTemplate")
-	self.SweavCheckbox:SetPoint("TOPRIGHT",-100,-240)
+	self.SweavCheckbox:SetPoint("TOPRIGHT",-60,-100)
 	self.SweavCheckbox:SetFrameStrata("LOW")
 	self.SweavCheckbox:SetScript("OnClick", function () 
 		if self.SweavCheckbox:GetChecked() == nil then 
@@ -666,7 +706,7 @@ function aDF.Options:Gui()
 	
 	--Ignite
 	self.IgniteCheckbox = CreateFrame("CheckButton", nil, self, "UICheckButtonTemplate")
-	self.IgniteCheckbox:SetPoint("TOPRIGHT",-100,-280)
+	self.IgniteCheckbox:SetPoint("TOPRIGHT",-60,-140)
 	self.IgniteCheckbox:SetFrameStrata("LOW")
 	self.IgniteCheckbox:SetScript("OnClick", function () 
 		if self.IgniteCheckbox:GetChecked() == nil then 
@@ -693,7 +733,7 @@ function aDF.Options:Gui()
 	
 	-- Elemental Vulnerability (Mage t3 6setbonus)
 	self.ElementalCheckbox = CreateFrame("CheckButton", nil, self, "UICheckButtonTemplate")
-	self.ElementalCheckbox:SetPoint("TOPRIGHT",-100,-320)
+	self.ElementalCheckbox:SetPoint("TOPRIGHT",-60,-180)
 	self.ElementalCheckbox:SetFrameStrata("LOW")
 	self.ElementalCheckbox:SetScript("OnClick", function () 
 		if self.ElementalCheckbox:GetChecked() == nil then 
@@ -720,7 +760,7 @@ function aDF.Options:Gui()
 
 	--Resistances
 	self.ResCheckbox = CreateFrame("CheckButton", nil, self, "UICheckButtonTemplate")
-	self.ResCheckbox:SetPoint("TOPLEFT",130,-320)
+	self.ResCheckbox:SetPoint("TOPRIGHT",-60,-260)
 	self.ResCheckbox:SetFrameStrata("LOW")
 	self.ResCheckbox:SetScript("OnClick", function () 
 		if self.ResCheckbox:GetChecked() == nil then 
@@ -737,11 +777,16 @@ function aDF.Options:Gui()
 		GameTooltip:Show()
 	end)
 	self.ResCheckbox:SetScript("OnLeave", function() GameTooltip:Hide() end)
-	self.ResCheckbox:SetChecked(gui_Options["Resistances"])	
+	self.ResCheckbox:SetChecked(gui_Options["Resistances"])
+	self.ResIcon = self.ResCheckbox:CreateTexture(nil, 'ARTWORK')
+	self.ResIcon:SetTexture("Interface\\Icons\\Trade_Engineering")
+	self.ResIcon:SetWidth(25)
+	self.ResIcon:SetHeight(25)
+	self.ResIcon:SetPoint("CENTER",-30,0)	
 	
 	-- Vampiric Embrace
 	self.VambraceCheckbox = CreateFrame("CheckButton", nil, self, "UICheckButtonTemplate")
-	self.VambraceCheckbox:SetPoint("TOPRIGHT",-100,-360)
+	self.VambraceCheckbox:SetPoint("TOPRIGHT",-60,-220)
 	self.VambraceCheckbox:SetFrameStrata("LOW")
 	self.VambraceCheckbox:SetScript("OnClick", function () 
 		if self.VambraceCheckbox:GetChecked() == nil then 
@@ -769,7 +814,7 @@ function aDF.Options:Gui()
 	-- drop down menu
 	
 	self.dropdown = CreateFrame('Button', 'chandropdown', self, 'UIDropDownMenuTemplate')
-	self.dropdown:SetPoint("BOTTOM",-60,20)
+	self.dropdown:SetPoint("TOP",-65, -310)
 	InitializeDropdown = function() 
 		local info = {}
 		for k,v in pairs(gui_chantbl) do
@@ -794,7 +839,7 @@ function aDF.Options:Gui()
 	-- done button
 	
 	self.dbutton = CreateFrame("Button",nil,self,"UIPanelButtonTemplate")
-	self.dbutton:SetPoint("BOTTOM",0,10)
+	self.dbutton:SetPoint("BOTTOM",0,30)
 	self.dbutton:SetFrameStrata("LOW")
 	self.dbutton:SetWidth(79)
 	self.dbutton:SetHeight(18)
@@ -805,15 +850,15 @@ end
 
 -- function to check a unit for a certain debuff and/or number of stacks
 
-function aDF:GetDebuff(name,buff,stacks)
+function aDF:GetDebuff(name,icon,stacks)
 	local a=1
-	while UnitDebuff(name,a) do
-		local _, s = UnitDebuff(name,a)
-   		aDF_tooltip:SetOwner(UIParent, "ANCHOR_NONE");
-		aDF_tooltip:ClearLines()
-   		aDF_tooltip:SetUnitDebuff(name,a)
-		local aDFtext = aDF_tooltipTextL:GetText()
-		if aDFtext == buff then 
+	while UnitDebuff(name,a) do 
+		local path, s = UnitDebuff(name,a)
+		-- aDF_tooltip:SetOwner(UIParent, "ANCHOR_NONE");
+		-- aDF_tooltip:ClearLines()
+		-- aDF_tooltip:SetUnitDebuff(name,a)
+		-- local aDFtext = aDF_tooltipTextL:GetText()
+		if path == icon then 
 			if stacks == 1 then
 				return s
 			else
@@ -839,12 +884,13 @@ function aDF:OnEvent()
 		DEFAULT_CHAT_FRAME:AddMessage("|cFFF5F54A aDF:|r type |cFFFFFF00 /adf show|r to show frame",1,1,1)
 		DEFAULT_CHAT_FRAME:AddMessage("|cFFF5F54A aDF:|r type |cFFFFFF00 /adf hide|r to hide frame",1,1,1)
 		DEFAULT_CHAT_FRAME:AddMessage("|cFFF5F54A aDF:|r type |cFFFFFF00 /adf options|r for options frame",1,1,1)
+		DEFAULT_CHAT_FRAME:AddMessage("options selected: "..guiOptionsSize)
 	end
 	if event == "UNIT_AURA" then
 		aDF:Update()
 	end
 	if event == "PLAYER_TARGET_CHANGED" then
-	aDF_target = nil
+		aDF_target = nil
 	if UnitIsPlayer("target") then
 		aDF_target = "targettarget"
 	end
