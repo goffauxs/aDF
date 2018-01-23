@@ -8,6 +8,7 @@ aDF.Options = CreateFrame("Frame",nil,UIParent) -- Options frame
 aDF:RegisterEvent("ADDON_LOADED")
 aDF:RegisterEvent("UNIT_AURA")
 aDF:RegisterEvent("PLAYER_TARGET_CHANGED")
+aDF:RegisterEvent("RAID_ROSTER_UPDATE")
 
 -- tables 
 guiOptionsSize = 0
@@ -262,6 +263,13 @@ function aDF:Update()
 			aDF_frames[i]["icon"]:SetAlpha(0.3)
 			aDF_frames[i]["nr"]:SetText("")
 		end
+	end
+	if gui_Options["Raid"] and UnitInRaid("player") then
+		aDF:Show()
+	elseif gui_Options["Raid"] and ( UnitInRaid("player") == nil ) then
+		aDF:Hide()
+	else
+		aDF:Show()
 	end
 	aDF:CheckSize()
 	aDF:SetWidth((24+gui_Optionsxy)*guiOptionsSize)
@@ -811,6 +819,33 @@ function aDF.Options:Gui()
 	self.VambraceIcon:SetHeight(25)
 	self.VambraceIcon:SetPoint("CENTER",-30,0)
 	
+	-- hide outside of raid
+
+	self.RaidCheckbox = CreateFrame("CheckButton", nil, self, "UICheckButtonTemplate")
+	self.RaidCheckbox:SetPoint("TOPRIGHT",-60,-300)
+	self.RaidCheckbox:SetFrameStrata("LOW")
+	self.RaidCheckbox:SetScript("OnClick", function () 
+		if self.RaidCheckbox:GetChecked() == nil then 
+			gui_Options["Raid"] = nil
+		elseif self.RaidCheckbox:GetChecked() == 1 then 
+			gui_Options["Raid"] = 1 
+		end
+		aDF:Sort()
+		aDF:Update()
+		end)
+	self.RaidCheckbox:SetScript("OnEnter", function() 
+		GameTooltip:SetOwner(self.RaidCheckbox, "ANCHOR_RIGHT");
+		GameTooltip:SetText("Only show frame when in raid", 255, 255, 0, 1, 1);
+		GameTooltip:Show()
+	end)
+	self.RaidCheckbox:SetScript("OnLeave", function() GameTooltip:Hide() end)
+	self.RaidCheckbox:SetChecked(gui_Options["Raidistances"])
+	self.RaidIcon = self.RaidCheckbox:CreateTexture(nil, 'ARTWORK')
+	self.RaidIcon:SetTexture("Interface\\Icons\\Trade_Engineering")
+	self.RaidIcon:SetWidth(25)
+	self.RaidIcon:SetHeight(25)
+	self.RaidIcon:SetPoint("CENTER",-30,0)	
+	
 	-- drop down menu
 	
 	self.dropdown = CreateFrame('Button', 'chandropdown', self, 'UIDropDownMenuTemplate')
@@ -898,6 +933,15 @@ function aDF:OnEvent()
 		aDF_target = "target"
 	end
 		aDF:Update()
+	end
+	if event == "RAID_ROSTER_UPDATE" then
+		if gui_Options["Raid"] and UnitInRaid("player") then
+			aDF:Show()
+		elseif gui_Options["Raid"] and ( UnitInRaid("player") == nil ) then
+			aDF:Hide()
+		else
+			aDF:Show()
+		end
 	end
 end
 
