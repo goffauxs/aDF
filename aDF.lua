@@ -30,7 +30,7 @@ aDFSpells = {
 	["Sunder Armor"] = "Interface\\Icons\\Ability_Warrior_Sunder",
 	["Armor Shatter"] = "Interface\\Icons\\INV_Axe_12",
 	["Faerie Fire"] = "Interface\\Icons\\Spell_Nature_FaerieFire",
-	["Crystal Yield"] = "Interface\\Icons\\INV_Misc_Gem_Amethyst_01",
+	["Expose Armor"] = "Interface\\Icons\\Ability_Warrior_Riposte",
 	["Elemental Vulnerability"] = "Interface\\Icons\\Spell_Holy_Dizzy",
 	["Nightfall"] = "Interface\\Icons\\Spell_Holy_ElunesGrace",
 	["Scorch"] = "Interface\\Icons\\Spell_Fire_SoulBurn",
@@ -49,7 +49,7 @@ aDFDebuffs = {
 	["Sunder Armor"] = "Interface\\Icons\\Ability_Warrior_Sunder",
 	["Armor Shatter"] = "Interface\\Icons\\INV_Axe_12",
 	["Faerie Fire"] = "Interface\\Icons\\Spell_Nature_FaerieFire",
-	["Crystal Yield"] = "Interface\\Icons\\INV_Misc_Gem_Amethyst_01",
+	["Expose Armor"] = "Interface\\Icons\\Ability_Warrior_Riposte",
 	["Elemental Vulnerability"] = "Interface\\Icons\\Spell_Holy_Dizzy",
 	["Nightfall"] = "Interface\\Icons\\Spell_Holy_ElunesGrace",
 	["Scorch"] = "Interface\\Icons\\Spell_Fire_SoulBurn",
@@ -60,25 +60,6 @@ aDFDebuffs = {
 	["Shadow Bolt"] = "Interface\\Icons\\Spell_Shadow_ShadowBolt",
 	["Shadow Weaving"] = "Interface\\Icons\\Spell_Shadow_BlackPlague",
 	["Vampiric Embrace"] = "Interface\\Icons\\Spell_Shadow_UnsummonBuilding",
-}
-
--- table with cooldowns
-
-aDFCooldowns = {
-	["Sunder Armor"] = 30,
-	["Armor Shatter"] = 45,
-	["Faerie Fire"] = 40,
-	["Crystal Yield"] = 120,
-	["Nightfall"] = 5,
-	["Scorch"] = 30,
-	["Ignite"] = 4,
-	["Curse of Recklessness"] = 120,
-	["Curse of the Elements"] = 120,
-	["Curse of Shadows"] = 120,
-	["Shadow Bolt"] = 12,
-	["Shadow Weaving"] = 15,
-	["Mage T3 6/9 Bonus"] = 30,
-	["Vampiric Embrace"] = 60, 
 }
 
 
@@ -496,32 +477,32 @@ function aDF.Options:Gui()
 	self.FFIcon:SetHeight(25)
 	self.FFIcon:SetPoint("CENTER",-30,0)
 	
-	--Crystal Yield
-	self.CrystalCheckbox = CreateFrame("CheckButton", nil, self, "UICheckButtonTemplate")
-	self.CrystalCheckbox:SetPoint("TOPLEFT",90,-220)
-	self.CrystalCheckbox:SetFrameStrata("LOW")
-	self.CrystalCheckbox:SetScript("OnClick", function () 
-		if self.CrystalCheckbox:GetChecked() == nil then 
-			guiOptions["Crystal Yield"] = nil
-		elseif self.CrystalCheckbox:GetChecked() == 1 then 
-			guiOptions["Crystal Yield"] = 1 
+	--Expose Armor
+	self.ExposeCheckbox = CreateFrame("CheckButton", nil, self, "UICheckButtonTemplate")
+	self.ExposeCheckbox:SetPoint("TOPLEFT",90,-220)
+	self.ExposeCheckbox:SetFrameStrata("LOW")
+	self.ExposeCheckbox:SetScript("OnClick", function () 
+		if self.ExposeCheckbox:GetChecked() == nil then 
+			guiOptions["Expose Armor"] = nil
+		elseif self.ExposeCheckbox:GetChecked() == 1 then 
+			guiOptions["Expose Armor"] = 1 
 			table.sort(guiOptions)
 		end
 		aDF:Sort()
 		aDF:Update()
 		end)
-	self.CrystalCheckbox:SetScript("OnEnter", function() 
-		GameTooltip:SetOwner(self.CrystalCheckbox, "ANCHOR_RIGHT");
-		GameTooltip:SetText("Crystal Yield", 255, 255, 0, 1, 1);
+	self.ExposeCheckbox:SetScript("OnEnter", function() 
+		GameTooltip:SetOwner(self.ExposeCheckbox, "ANCHOR_RIGHT");
+		GameTooltip:SetText("Expose Armor", 255, 255, 0, 1, 1);
 		GameTooltip:Show()
 	end)
-	self.CrystalCheckbox:SetScript("OnLeave", function() GameTooltip:Hide() end)
-	self.CrystalCheckbox:SetChecked(guiOptions["Crystal Yield"])
-	self.CrystalIcon = self.CrystalCheckbox:CreateTexture(nil, 'ARTWORK')
-	self.CrystalIcon:SetTexture(aDFDebuffs["Crystal Yield"])
-	self.CrystalIcon:SetWidth(25)
-	self.CrystalIcon:SetHeight(25)
-	self.CrystalIcon:SetPoint("CENTER",-30,0)
+	self.ExposeCheckbox:SetScript("OnLeave", function() GameTooltip:Hide() end)
+	self.ExposeCheckbox:SetChecked(guiOptions["Expose Armor"])
+	self.ExposeIcon = self.ExposeCheckbox:CreateTexture(nil, 'ARTWORK')
+	self.ExposeIcon:SetTexture(aDFDebuffs["Expose Armor"])
+	self.ExposeIcon:SetWidth(25)
+	self.ExposeIcon:SetHeight(25)
+	self.ExposeIcon:SetPoint("CENTER",-30,0)
 
 	--Nightfall
 	self.NfallCheckbox = CreateFrame("CheckButton", nil, self, "UICheckButtonTemplate")
