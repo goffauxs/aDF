@@ -40,7 +40,7 @@ aDFSpells = {
 	["Curse of Shadows"] = "Interface\\Icons\\Spell_Shadow_CurseOfAchimonde",
 	["Shadow Bolt"] = "Interface\\Icons\\Spell_Shadow_ShadowBolt",
 	["Shadow Weaving"] = "Interface\\Icons\\Spell_Shadow_BlackPlague",
-	["Vampiric Embrace"] = "Interface\\Icons\\Spell_Shadow_UnsummonBuilding",
+	["Winter's Chill"] = "Interface\\Icons\\Spell_Frost_ChillingBlast",
 }
 
 -- table with names and textures 
@@ -59,7 +59,7 @@ aDFDebuffs = {
 	["Curse of Shadows"] = "Interface\\Icons\\Spell_Shadow_CurseOfAchimonde",
 	["Shadow Bolt"] = "Interface\\Icons\\Spell_Shadow_ShadowBolt",
 	["Shadow Weaving"] = "Interface\\Icons\\Spell_Shadow_BlackPlague",
-	["Vampiric Embrace"] = "Interface\\Icons\\Spell_Shadow_UnsummonBuilding",
+	["Winter's Chill"] = "Interface\\Icons\\Spell_Frost_ChillingBlast",
 }
 
 
@@ -773,32 +773,32 @@ function aDF.Options:Gui()
 	self.ResIcon:SetHeight(25)
 	self.ResIcon:SetPoint("CENTER",-30,0)	
 	
-	-- Vampiric Embrace
-	self.VambraceCheckbox = CreateFrame("CheckButton", nil, self, "UICheckButtonTemplate")
-	self.VambraceCheckbox:SetPoint("TOPRIGHT",-60,-220)
-	self.VambraceCheckbox:SetFrameStrata("LOW")
-	self.VambraceCheckbox:SetScript("OnClick", function () 
-		if self.VambraceCheckbox:GetChecked() == nil then 
-			guiOptions["Vampiric Embrace"] = nil
-		elseif self.VambraceCheckbox:GetChecked() == 1 then 
-			guiOptions["Vampiric Embrace"] = 1 
+	-- Winter's Chill
+	self.WintersChillCheckbox = CreateFrame("CheckButton", nil, self, "UICheckButtonTemplate")
+	self.WintersChillCheckbox:SetPoint("TOPRIGHT",-60,-220)
+	self.WintersChillCheckbox:SetFrameStrata("LOW")
+	self.WintersChillCheckbox:SetScript("OnClick", function () 
+		if self.WintersChillCheckbox:GetChecked() == nil then 
+			guiOptions["Winter's Chill"] = nil
+		elseif self.WintersChillCheckbox:GetChecked() == 1 then 
+			guiOptions["Winter's Chill"] = 1 
 			table.sort(guiOptions)
 		end
 		aDF:Sort()
 		aDF:Update()
 		end)
-	self.VambraceCheckbox:SetScript("OnEnter", function() 
-		GameTooltip:SetOwner(self.VambraceCheckbox, "ANCHOR_RIGHT");
-		GameTooltip:SetText("Vampiric Embrace", 255, 255, 0, 1, 1);
+	self.WintersChillCheckbox:SetScript("OnEnter", function() 
+		GameTooltip:SetOwner(self.WintersChillCheckbox, "ANCHOR_RIGHT");
+		GameTooltip:SetText("Winter's Chill", 255, 255, 0, 1, 1);
 		GameTooltip:Show()
 	end)
-	self.VambraceCheckbox:SetScript("OnLeave", function() GameTooltip:Hide() end)
-	self.VambraceCheckbox:SetChecked(guiOptions["Vampiric Embrace"])
-	self.VambraceIcon = self.VambraceCheckbox:CreateTexture(nil, 'ARTWORK')
-	self.VambraceIcon:SetTexture(aDFDebuffs["Vampiric Embrace"])
-	self.VambraceIcon:SetWidth(25)
-	self.VambraceIcon:SetHeight(25)
-	self.VambraceIcon:SetPoint("CENTER",-30,0)
+	self.WintersChillCheckbox:SetScript("OnLeave", function() GameTooltip:Hide() end)
+	self.WintersChillCheckbox:SetChecked(guiOptions["Winter's Chill"])
+	self.WintersChillIcon = self.WintersChillCheckbox:CreateTexture(nil, 'ARTWORK')
+	self.WintersChillIcon:SetTexture(aDFDebuffs["Winter's Chill"])
+	self.WintersChillIcon:SetWidth(25)
+	self.WintersChillIcon:SetHeight(25)
+	self.WintersChillIcon:SetPoint("CENTER",-30,0)
 	
 	-- hide outside of raid
 
