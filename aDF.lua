@@ -31,7 +31,7 @@ aDFSpells = {
 	["Armor Shatter"] = "Interface\\Icons\\INV_Axe_12",
 	["Faerie Fire"] = "Interface\\Icons\\Spell_Nature_FaerieFire",
 	["Expose Armor"] = "Interface\\Icons\\Ability_Warrior_Riposte",
-	["Elemental Vulnerability"] = "Interface\\Icons\\Spell_Holy_Dizzy",
+	["Flame Buffet"] = "Interface\\Icons\\Spell_Fire_Fireball",
 	["Nightfall"] = "Interface\\Icons\\Spell_Holy_ElunesGrace",
 	["Scorch"] = "Interface\\Icons\\Spell_Fire_SoulBurn",
 	["Ignite"] = "Interface\\Icons\\Spell_Fire_Incinerate",
@@ -50,7 +50,7 @@ aDFDebuffs = {
 	["Armor Shatter"] = "Interface\\Icons\\INV_Axe_12",
 	["Faerie Fire"] = "Interface\\Icons\\Spell_Nature_FaerieFire",
 	["Expose Armor"] = "Interface\\Icons\\Ability_Warrior_Riposte",
-	["Elemental Vulnerability"] = "Interface\\Icons\\Spell_Holy_Dizzy",
+	["Flame Buffet"] = "Interface\\Icons\\Spell_Fire_Fireball",
 	["Nightfall"] = "Interface\\Icons\\Spell_Holy_ElunesGrace",
 	["Scorch"] = "Interface\\Icons\\Spell_Fire_SoulBurn",
 	["Ignite"] = "Interface\\Icons\\Spell_Fire_Incinerate",
@@ -720,32 +720,32 @@ function aDF.Options:Gui()
 	self.IgniteIcon:SetHeight(25)
 	self.IgniteIcon:SetPoint("CENTER",-30,0)
 	
-	-- Elemental Vulnerability (Mage t3 6setbonus)
-	self.ElementalCheckbox = CreateFrame("CheckButton", nil, self, "UICheckButtonTemplate")
-	self.ElementalCheckbox:SetPoint("TOPRIGHT",-60,-180)
-	self.ElementalCheckbox:SetFrameStrata("LOW")
-	self.ElementalCheckbox:SetScript("OnClick", function () 
-		if self.ElementalCheckbox:GetChecked() == nil then 
-			guiOptions["Elemental Vulnerability"] = nil
-		elseif self.ElementalCheckbox:GetChecked() == 1 then 
-			guiOptions["Elemental Vulnerability"] = 1 
+	-- Flame Buffet (Arcanite Dragonling debuff)
+	self.BuffetCheckbox = CreateFrame("CheckButton", nil, self, "UICheckButtonTemplate")
+	self.BuffetCheckbox:SetPoint("TOPRIGHT",-60,-180)
+	self.BuffetCheckbox:SetFrameStrata("LOW")
+	self.BuffetCheckbox:SetScript("OnClick", function () 
+		if self.BuffetCheckbox:GetChecked() == nil then 
+			guiOptions["Flame Buffet"] = nil
+		elseif self.BuffetCheckbox:GetChecked() == 1 then 
+			guiOptions["Flame Buffet"] = 1 
 			table.sort(guiOptions)
 		end
 		aDF:Sort()
 		aDF:Update()
 		end)
-	self.ElementalCheckbox:SetScript("OnEnter", function() 
-		GameTooltip:SetOwner(self.ElementalCheckbox, "ANCHOR_RIGHT");
-		GameTooltip:SetText("Elemental Vulnerability", 255, 255, 0, 1, 1);
+	self.BuffetCheckbox:SetScript("OnEnter", function() 
+		GameTooltip:SetOwner(self.BuffetCheckbox, "ANCHOR_RIGHT");
+		GameTooltip:SetText("Flame Buffet", 255, 255, 0, 1, 1);
 		GameTooltip:Show()
 	end)
-	self.ElementalCheckbox:SetScript("OnLeave", function() GameTooltip:Hide() end)
-	self.ElementalCheckbox:SetChecked(guiOptions["Elemental Vulnerability"])
-	self.ElementalIcon = self.ElementalCheckbox:CreateTexture(nil, 'ARTWORK')
-	self.ElementalIcon:SetTexture(aDFDebuffs["Elemental Vulnerability"])
-	self.ElementalIcon:SetWidth(25)
-	self.ElementalIcon:SetHeight(25)
-	self.ElementalIcon:SetPoint("CENTER",-30,0)
+	self.BuffetCheckbox:SetScript("OnLeave", function() GameTooltip:Hide() end)
+	self.BuffetCheckbox:SetChecked(guiOptions["Flame Buffet"])
+	self.BuffetIcon = self.BuffetCheckbox:CreateTexture(nil, 'ARTWORK')
+	self.BuffetIcon:SetTexture(aDFDebuffs["Flame Buffet"])
+	self.BuffetIcon:SetWidth(25)
+	self.BuffetIcon:SetHeight(25)
+	self.BuffetIcon:SetPoint("CENTER",-30,0)
 
 	--Resistances
 	self.ResCheckbox = CreateFrame("CheckButton", nil, self, "UICheckButtonTemplate")
