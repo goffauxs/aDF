@@ -64,7 +64,7 @@ aDFDebuffs = {
 
 
 function aDF_Default()
-	if guiOptions == nil then
+	if guiOptions == nil or guiOptions["Elemental Vulnerability"] == 1 then
 		guiOptions = {}
 		for k,v in pairs(aDFDebuffs) do
 			if guiOptions[k] == nil then
